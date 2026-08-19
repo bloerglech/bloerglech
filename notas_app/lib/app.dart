@@ -26,6 +26,21 @@ class NotasApp extends StatelessWidget {
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
         ],
+        // `builder` envuelve el Navigator completo, así que un provider puesto
+        // acá queda disponible para cualquier ruta que se empuje después
+        // (a diferencia de envolver solo el widget de `home`, que deja fuera
+        // a las pantallas abiertas con Navigator.push, como el editor de notas).
+        builder: (context, child) {
+          final auth = context.watch<AuthState>();
+          if (auth.status == AuthStatus.signedIn) {
+            return ChangeNotifierProvider<LibraryState>(
+              key: ValueKey(auth.user!.uid),
+              create: (_) => LibraryState(auth.user!.uid),
+              child: child!,
+            );
+          }
+          return child!;
+        },
         home: const _RootGate(),
       ),
     );
@@ -48,11 +63,7 @@ class _RootGate extends StatelessWidget {
       case AuthStatus.signedOut:
         return const SignInScreen();
       case AuthStatus.signedIn:
-        return ChangeNotifierProvider<LibraryState>(
-          key: ValueKey(auth.user!.uid),
-          create: (_) => LibraryState(auth.user!.uid),
-          child: const HomeShell(),
-        );
+        return const HomeShell();
     }
   }
 }
