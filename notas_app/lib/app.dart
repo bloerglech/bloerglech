@@ -20,7 +20,6 @@ class NotasApp extends StatelessWidget {
         title: 'Fichero',
         debugShowCheckedModeBanner: false,
         theme: AppTheme.light(),
-        locale: const Locale('es'),
         supportedLocales: const [Locale('es'), Locale('en')],
         localizationsDelegates: const [
           GlobalMaterialLocalizations.delegate,
