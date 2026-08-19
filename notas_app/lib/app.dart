@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_quill/flutter_quill.dart' show FlutterQuillLocalizations;
 import 'package:provider/provider.dart';
 import 'screens/auth/sign_in_screen.dart';
 import 'screens/home/home_shell.dart';
@@ -25,6 +26,7 @@ class NotasApp extends StatelessWidget {
           GlobalMaterialLocalizations.delegate,
           GlobalWidgetsLocalizations.delegate,
           GlobalCupertinoLocalizations.delegate,
+          FlutterQuillLocalizations.delegate,
         ],
         // `builder` envuelve el Navigator completo, así que un provider puesto
         // acá queda disponible para cualquier ruta que se empuje después
