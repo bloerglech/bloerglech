@@ -4,6 +4,7 @@ import '../../models/task_item.dart';
 import '../../models/task_status.dart';
 import '../../state/library_state.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/dead_key_fix.dart';
 
 class TaskEditorScreen extends StatefulWidget {
   final TaskItem? task;
@@ -92,12 +93,14 @@ class _TaskEditorScreenState extends State<TaskEditorScreen> {
               controller: _title,
               autofocus: widget.task == null,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: AppColors.steel),
+              inputFormatters: [DeadKeyComposingFormatter()],
               decoration: const InputDecoration(hintText: 'Título de la tarea', border: InputBorder.none, contentPadding: EdgeInsets.zero),
             ),
             const SizedBox(height: 12),
             TextField(
               controller: _description,
               maxLines: 3,
+              inputFormatters: [DeadKeyComposingFormatter()],
               decoration: const InputDecoration(hintText: 'Detalles (opcional)…'),
             ),
             const SizedBox(height: 16),
@@ -112,6 +115,7 @@ class _TaskEditorScreenState extends State<TaskEditorScreen> {
                       const SizedBox(height: 6),
                       TextField(
                         controller: _assignee,
+                        inputFormatters: [DeadKeyComposingFormatter()],
                         decoration: const InputDecoration(isDense: true, hintText: 'Nombre de la persona'),
                       ),
                       if (assignees.isNotEmpty) ...[

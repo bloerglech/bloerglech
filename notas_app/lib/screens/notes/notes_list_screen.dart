@@ -6,6 +6,7 @@ import '../../theme/app_colors.dart';
 import '../../widgets/chip_pill.dart';
 import '../../widgets/empty_state.dart';
 import '../../widgets/note_card.dart';
+import '../../utils/dead_key_fix.dart';
 import 'books_manager_screen.dart';
 import 'note_editor_screen.dart';
 
@@ -52,6 +53,7 @@ class _NotesListScreenState extends State<NotesListScreen> {
                   children: [
                     Expanded(
                       child: TextField(
+                        inputFormatters: [DeadKeyComposingFormatter()],
                         decoration: const InputDecoration(
                           hintText: 'Buscar en notas y campos…',
                           prefixIcon: Icon(Icons.search, size: 20, color: AppColors.inkSoft),

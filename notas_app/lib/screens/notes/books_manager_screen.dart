@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../models/book.dart';
 import '../../state/library_state.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/dead_key_fix.dart';
 
 class BooksManagerScreen extends StatefulWidget {
   const BooksManagerScreen({super.key});
@@ -51,6 +52,7 @@ class _BooksManagerScreenState extends State<BooksManagerScreen> {
               Expanded(
                 child: TextField(
                   controller: _newNameCtrl,
+                  inputFormatters: [DeadKeyComposingFormatter()],
                   decoration: const InputDecoration(hintText: 'Nombre del nuevo libro'),
                   onSubmitted: (_) => _create(lib),
                 ),
@@ -116,6 +118,7 @@ class _BooksManagerScreenState extends State<BooksManagerScreen> {
                 ? TextField(
                     controller: _renameCtrl,
                     autofocus: true,
+                    inputFormatters: [DeadKeyComposingFormatter()],
                     decoration: const InputDecoration(isDense: true),
                     onSubmitted: (v) {
                       lib.updateBook(b.id, name: v.trim().isEmpty ? b.name : v.trim());

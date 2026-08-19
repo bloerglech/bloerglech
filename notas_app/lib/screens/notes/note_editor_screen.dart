@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:provider/provider.dart';
@@ -5,6 +6,7 @@ import '../../models/note.dart';
 import '../../models/note_field.dart';
 import '../../state/library_state.dart';
 import '../../theme/app_colors.dart';
+import '../../utils/dead_key_fix.dart';
 
 class NoteEditorScreen extends StatefulWidget {
   final Note? note;
@@ -25,6 +27,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   final _newTagCtrl = TextEditingController();
   final _newBookCtrl = TextEditingController();
   bool _creatingBook = false;
+  StreamSubscription? _quillDeadKeySub;
 
   bool get _isNew => widget.note == null;
 
@@ -37,6 +40,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       document: note != null ? Document.fromJson(note.bodyDelta) : Document(),
       selection: const TextSelection.collapsed(offset: 0),
     );
+    _quillDeadKeySub = _quillController.document.changes.listen((_) => _fixDeadKeyInQuill());
     _bookId = note?.bookId;
     _tags = List.of(note?.tags ?? []);
     _fields = List.of(note?.fields ?? []);
@@ -45,12 +49,26 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   @override
   void dispose() {
+    _quillDeadKeySub?.cancel();
     _titleCtrl.dispose();
     _quillController.dispose();
     _newFieldCtrl.dispose();
     _newTagCtrl.dispose();
     _newBookCtrl.dispose();
     super.dispose();
+  }
+
+  /// Combina "tecla muerta + vocal" (ej. "´" + "a") en el carácter con
+  /// tilde correspondiente. Ver lib/utils/dead_key_fix.dart.
+  void _fixDeadKeyInQuill() {
+    final selection = _quillController.selection;
+    final offset = selection.baseOffset;
+    if (!selection.isCollapsed || offset < 2) return;
+    final text = _quillController.document.toPlainText();
+    if (offset > text.length) return;
+    final composed = combineDeadKey(text[offset - 2], text[offset - 1]);
+    if (composed == null) return;
+    _quillController.replaceText(offset - 2, 2, composed, TextSelection.collapsed(offset: offset - 1));
   }
 
   Note _buildNote() {
@@ -185,6 +203,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             TextField(
               controller: _titleCtrl,
               style: Theme.of(context).textTheme.headlineSmall,
+              inputFormatters: [DeadKeyComposingFormatter()],
               decoration: const InputDecoration(
                 hintText: 'Título de la nota',
                 border: InputBorder.none,
@@ -286,6 +305,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             child: TextField(
               controller: _newBookCtrl,
               autofocus: true,
+              inputFormatters: [DeadKeyComposingFormatter()],
               decoration: InputDecoration(
                 isDense: true,
                 hintText: 'Nombre del libro',
@@ -351,6 +371,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
                 Expanded(
                   child: TextFormField(
                     initialValue: _fields[i].value,
+                    inputFormatters: [DeadKeyComposingFormatter()],
                     decoration: const InputDecoration(isDense: true, hintText: 'valor'),
                     onChanged: (v) => _fields[i] = NoteField(key: _fields[i].key, value: v),
                   ),
@@ -367,6 +388,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
             Expanded(
               child: TextField(
                 controller: _newFieldCtrl,
+                inputFormatters: [DeadKeyComposingFormatter()],
                 decoration: const InputDecoration(isDense: true, hintText: 'Nombre de campo nuevo (ej. Prioridad)'),
                 onSubmitted: _addField,
               ),
@@ -411,6 +433,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
               ),
               TextField(
                 controller: _newTagCtrl,
+                inputFormatters: [DeadKeyComposingFormatter()],
                 decoration: const InputDecoration(isDense: true, hintText: 'ideas, urgente…'),
                 onSubmitted: (v) {
                   final t = v.trim();
