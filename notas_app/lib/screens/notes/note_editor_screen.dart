@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_quill/flutter_quill.dart';
 import 'package:provider/provider.dart';
@@ -27,7 +26,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   final _newTagCtrl = TextEditingController();
   final _newBookCtrl = TextEditingController();
   bool _creatingBook = false;
-  StreamSubscription? _quillDeadKeySub;
+  bool _fixingDeadKey = false;
 
   bool get _isNew => widget.note == null;
 
@@ -40,7 +39,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
       document: note != null ? Document.fromJson(note.bodyDelta) : Document(),
       selection: const TextSelection.collapsed(offset: 0),
     );
-    _quillDeadKeySub = _quillController.document.changes.listen((_) => _fixDeadKeyInQuill());
+    _quillController.addListener(_fixDeadKeyInQuill);
     _bookId = note?.bookId;
     _tags = List.of(note?.tags ?? []);
     _fields = List.of(note?.fields ?? []);
@@ -49,7 +48,7 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
 
   @override
   void dispose() {
-    _quillDeadKeySub?.cancel();
+    _quillController.removeListener(_fixDeadKeyInQuill);
     _titleCtrl.dispose();
     _quillController.dispose();
     _newFieldCtrl.dispose();
@@ -59,8 +58,11 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
   }
 
   /// Combina "tecla muerta + vocal" (ej. "´" + "a") en el carácter con
-  /// tilde correspondiente. Ver lib/utils/dead_key_fix.dart.
+  /// tilde correspondiente. Ver lib/utils/dead_key_fix.dart. `_fixingDeadKey`
+  /// evita que la propia corrección (que dispara este mismo listener otra
+  /// vez) intente reprocesarse a sí misma.
   void _fixDeadKeyInQuill() {
+    if (_fixingDeadKey) return;
     final selection = _quillController.selection;
     final offset = selection.baseOffset;
     if (!selection.isCollapsed || offset < 2) return;
@@ -68,7 +70,12 @@ class _NoteEditorScreenState extends State<NoteEditorScreen> {
     if (offset > text.length) return;
     final composed = combineDeadKey(text[offset - 2], text[offset - 1]);
     if (composed == null) return;
-    _quillController.replaceText(offset - 2, 2, composed, TextSelection.collapsed(offset: offset - 1));
+    _fixingDeadKey = true;
+    try {
+      _quillController.replaceText(offset - 2, 2, composed, TextSelection.collapsed(offset: offset - 1));
+    } finally {
+      _fixingDeadKey = false;
+    }
   }
 
   Note _buildNote() {
