@@ -28,10 +28,10 @@ class DefaultFirebaseOptions {
   );
 
   static const android = FirebaseOptions(
-    apiKey: 'REPLACE_WITH_FLUTTERFIRE_CONFIGURE',
-    appId: 'REPLACE_WITH_FLUTTERFIRE_CONFIGURE',
-    messagingSenderId: 'REPLACE_WITH_FLUTTERFIRE_CONFIGURE',
-    projectId: 'REPLACE_WITH_FLUTTERFIRE_CONFIGURE',
-    storageBucket: 'REPLACE_WITH_FLUTTERFIRE_CONFIGURE',
+    apiKey: 'AIzaSyATUaDjpCpQCXH6k1CV0BAFiN-PH8eYb9c',
+    appId: '1:759499108441:android:f5cfea2130772ff7600148',
+    messagingSenderId: '759499108441',
+    projectId: 'notas-personal-e3fed',
+    storageBucket: 'notas-personal-e3fed.firebasestorage.app',
   );
 }

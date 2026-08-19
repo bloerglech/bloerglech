@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "759499108441",
+    "project_id": "notas-personal-e3fed",
+    "storage_bucket": "notas-personal-e3fed.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:759499108441:android:f5cfea2130772ff7600148",
+        "android_client_info": {
+          "package_name": "com.bloerglech.notas_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "759499108441-hvujunmks3rl5ck3p70u92k6je8ggs2l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyATUaDjpCpQCXH6k1CV0BAFiN-PH8eYb9c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "759499108441-hvujunmks3rl5ck3p70u92k6je8ggs2l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
