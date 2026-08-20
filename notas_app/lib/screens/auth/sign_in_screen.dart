@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../services/google_web_button.dart';
 import '../../state/auth_state.dart';
 import '../../theme/app_colors.dart';
 
@@ -15,6 +17,18 @@ class _SignInScreenState extends State<SignInScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   bool _registering = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // En la web hay que empezar a cargar el SDK de Google cuanto antes,
+    // para que el botón real esté listo cuando se muestre esta pantalla.
+    if (kIsWeb) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.read<AuthState>().prepareGoogleSignIn();
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -96,17 +110,7 @@ class _SignInScreenState extends State<SignInScreen> {
                           : Text(_registering ? 'Crear cuenta' : 'Ingresar'),
                     ),
                     const SizedBox(height: 10),
-                    OutlinedButton.icon(
-                      onPressed: auth.busy ? null : () => auth.signInWithGoogle(),
-                      icon: const Icon(Icons.g_mobiledata, size: 22),
-                      label: const Text('Continuar con Google'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.ink,
-                        side: const BorderSide(color: AppColors.line),
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      ),
-                    ),
+                    _buildGoogleButton(auth),
                     const SizedBox(height: 16),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -147,6 +151,29 @@ class _SignInScreenState extends State<SignInScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  /// En la web, Google exige que el botón sea uno que ellos mismos
+  /// renderizan (no se puede disparar el login con un botón propio). En
+  /// Android/iOS sí se puede usar un botón normal.
+  Widget _buildGoogleButton(AuthState auth) {
+    if (kIsWeb) {
+      final googleButton = buildGoogleWebSignInButton();
+      if (googleButton != null) {
+        return SizedBox(height: 44, child: Center(child: googleButton));
+      }
+    }
+    return OutlinedButton.icon(
+      onPressed: auth.busy ? null : () => auth.signInWithGoogle(),
+      icon: const Icon(Icons.g_mobiledata, size: 22),
+      label: const Text('Continuar con Google'),
+      style: OutlinedButton.styleFrom(
+        foregroundColor: AppColors.ink,
+        side: const BorderSide(color: AppColors.line),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       ),
     );
   }
